@@ -81,34 +81,54 @@ def get_search_result(col, row):
     filtered_df = df[condition1 & condition2]
     return filtered_df.dropna(axis=0, how="any")
 
-def process_text(text):
-    # 1. keep english words(remove redundant words)
-    # 2. get the word dictionary and map all the words onto it
-    # 移除URLs
+# def process_text(text):
+#     # 1. keep english words(remove redundant words)
+#     # 2. get the word dictionary and map all the words onto it
+#     # 移除URLs
     
-    # text = re.sub(r'<a href="[^"]+">([^<]+)</a>', r'\1', text)
+#     # text = re.sub(r'<a href="[^"]+">([^<]+)</a>', r'\1', text)
 
 
-    # 使用正则表达式匹配<a>标签并提取其中的内容
-    # pattern = re.compile(r'<a href="[^"]+">([^<]+)</a>')
-    # text = pattern.sub(r'\1', text)
-    # print(text)
+#     # 使用正则表达式匹配<a>标签并提取其中的内容
+#     # pattern = re.compile(r'<a href="[^"]+">([^<]+)</a>')
+#     # text = pattern.sub(r'\1', text)
+#     # print(text)
 
-    pattern = re.compile(r'<a href=[^>]+>@[^<]+</a>')
-    text = pattern.sub('', text)
+#     pattern = re.compile(r'<a href=[^>]+>@[^<]+</a>')
+#     text = pattern.sub('', text)
 
-    text = re.sub(r'http\S+|www\S+|https\S+', '', text, flags=re.MULTILINE)
+#     text = re.sub(r'http\S+|www\S+|https\S+', '', text, flags=re.MULTILINE)
 
-    # 移除表情和其他非ASCII字符
+#     # 移除表情和其他非ASCII字符
+#     text = text.encode('ascii', 'ignore').decode('ascii')
+    
+#     # 移除标点符号
+#     text = text.translate(str.maketrans('', '', string.punctuation))
+    
+#     # 移除多余的空格
+#     text = re.sub(r'\s+', ' ', text).strip()
+    
+#     return text
+
+def process_text(text):
+    # Remove HTML tags
+    text = re.sub(r'<.*?>', '', text)
+    
+    # Remove URLs
+    url_pattern = re.compile(r'http[s]?://\S+|www\.\S+', re.IGNORECASE)
+    text = url_pattern.sub('', text)
+    
+    # Remove emojis and other non-ASCII characters
     text = text.encode('ascii', 'ignore').decode('ascii')
     
-    # 移除标点符号
+    # Remove punctuation
     text = text.translate(str.maketrans('', '', string.punctuation))
     
-    # 移除多余的空格
+    # Remove extra whitespace
     text = re.sub(r'\s+', ' ', text).strip()
-    
+
     return text
+
 
 def build_vocab(file_path,min_freq=0, max_size=MAX_VOCAB_SIZE):
     df = pd.read_csv(file_path).fillna("<PAD>")

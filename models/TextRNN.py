@@ -51,36 +51,9 @@ class Model(nn.Module):
         self.fc = nn.Linear(config.hidden_size * 2, config.num_classes)
 
     def forward(self, x):
-        # input: [batch, seq_len, 1644] = [8, 64, 1644]
-        x, _ = x  
-        # [1644*8, 64]
+      # input: [batch, 1644, seq_len] = [8, 1644, 64]
+        x, _ = x   
+        x = x.reshape(-1, 64) # [1644*8, 64]
         out = self.embedding(x)  # [batch_size, seq_len, embeding]=[8*1644, 64, 300]
-        # import pdb;pdb.set_trace()
-        out, _ = self.lstm(out)# [8*1644, 64, hidden_size]
-        """
-        Args:  x: (batch, time_step, m)
-               x2:(batch, seq_len, m)
-            feat: [batch, window, dim, m]
-        Returns: (batch, m)
-        '''
-        #print("x,",x.shape)
-        if month is not None:
-            print(f'current batch month: {month}')
-        b, w, m = x.size()
-        orig_x = x
-        x = x.permute(0, 2, 1).contiguous().view(-1, x.size(1), 1)  #(batch * m, time_step, 1)
-        r_out, hc = self.rnn(x, None) #r_out (13152,3,40) (batch*m,time_step,hidden_size)
-        last_hid = r_out[:, -1, :]
-        last_hid = last_hid.view(-1, self.m, self.n_hidden)
-        out_temporal = last_hid  #(8,1644,40) (batch,m,hidden_size)
-        print('out_temporal',out_temporal.size())
-        rawdat=self.rawdat
-        # nlp start
-        # x, _ = x   # [128, 32]
-        # out = self.embedding(x)  # [batch_size, seq_len, embeding]=[8, 128, 300]
-        # out, _ = self.lstm(out)
-        
-        """
-
-        # out = self.fc(out[:, -1, :])  # 句子最后时刻的 hidden state
+        out, _ = self.lstm(out)# [8*1644, 64, hidden_size=40]
         return out
