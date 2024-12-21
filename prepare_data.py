@@ -8,6 +8,14 @@ import pandas as pd
 import pickle as pkl
 import numpy as np
 
+from googletrans import Translator
+from langdetect import detect
+"""
+pakage info:
+pip install langdetect googletrans==4.0.0-rc1
+"""
+
+
 MAX_VOCAB_SIZE = 10000  # 词表长度限制
 UNK, PAD = '<unk>', '<pad>'  # 未知字，padding符号
 MAX_VOCAB_SIZE = 10000  # 词表长度限制
@@ -111,6 +119,10 @@ def get_search_result(col, row):
 #     return text
 
 def process_text(text):
+
+    # translate from french to english if possible
+    text = detect_and_translate_french(text)
+
     # Remove HTML tags
     text = re.sub(r'<.*?>', '', text)
     
@@ -193,8 +205,28 @@ def convert_test(file_path, source_file_path):
     # [54, 1644, 64]
     return reshaped_matrix
 
-if __name__ == "__main__":
 
+def detect_and_translate_french(text):
+    translator = Translator()
+    # detected_lang = translator.detect(text).lang
+    detected_french = is_french(text)
+
+    if detected_french:
+        translation = translator.translate(text, src='fr',dest='en').text
+        return translation
+ 
+
+def is_french(text):
+    try:
+        language = detect(text)
+        return language == 'fr'
+    except:
+        return False
+
+
+if __name__ == "__main__":
+    print(string.punctuation)
+    # import pdb;pdb.set_trace()
     # fillin_id_time_df()
     # fillin_id_time_df()
     file = "new.csv"
